@@ -67,27 +67,38 @@ public class DeploymentController : ControllerBase
         _db.Deployments.Add(deployment);
         await _db.SaveChangesAsync();
 
+        // Fix: capture everything needed before background task
+        var deploymentId = deployment.Id;
+        var scriptName = dto.ScriptName;
+        var appName = dto.AppName;
+        var hostIp = host.IpAddress;
+        var hostName = host.Hostname;
+        var services = HttpContext.RequestServices;
+
         _ = Task.Run(async () =>
         {
             try
             {
-                var client = _httpClientFactory.CreateClient();
+                using var scope = services.CreateScope();
+                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                var httpClientFactory = scope.ServiceProvider.GetRequiredService<IHttpClientFactory>();
+                var client = httpClientFactory.CreateClient();
+                client.Timeout = TimeSpan.FromMinutes(10);
+
                 var payload = JsonSerializer.Serialize(new
                 {
-                    DeploymentId = deployment.Id,
-                    ScriptName = dto.ScriptName,
-                    AppName = dto.AppName
+                    DeploymentId = deploymentId,
+                    ScriptName = scriptName,
+                    AppName = appName
                 });
 
                 var content = new StringContent(payload, Encoding.UTF8, "application/json");
-                var agentUrl = $"http://{host.IpAddress}:5100/api/agent/execute";
+                var agentUrl = $"http://{hostIp}:5100/api/agent/execute";
 
                 var response = await client.PostAsync(agentUrl, content);
                 var result = await response.Content.ReadAsStringAsync();
 
-                using var scope = HttpContext.RequestServices.CreateScope();
-                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                var dep = await db.Deployments.FindAsync(deployment.Id);
+                var dep = await db.Deployments.FindAsync(deploymentId);
                 if (dep != null)
                 {
                     dep.Status = response.IsSuccessStatusCode ? "Success" : "Failed";
