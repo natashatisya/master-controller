@@ -1,19 +1,45 @@
-# Master Host Controller System
+# 🎛️ Master Host Controller System
 
 A distributed .NET system for managing, monitoring, and deploying applications across multiple hosts from a central controller.
 
 ---
 
-## Overview
+## 📋 Overview
 
 This system consists of two components:
 
-- **Master API** - Central controller that manages all registered hosts, monitors their health, and triggers deployments
-- **Client Agent** - Runs on each host, registers itself with the master, sends heartbeats, and executes deployment scripts
+- **Master API** — Central controller that manages all registered hosts, monitors their health, and triggers deployments
+- **Client Agent** — Runs on each host, registers itself with the master, sends heartbeats, and executes deployment scripts
 
 ---
 
-## Tech Stack
+## 🏗️ Architecture
+```
+┌─────────────────────────────────────────┐
+│           Master Host Controller         │
+│         ASP.NET Core 8 Web API          │
+│         http://localhost:5000           │
+│                                         │
+│  ┌─────────┐  ┌─────────┐  ┌────────┐  │
+│  │  Hosts  │  │ Deploy  │  │  Web   │  │
+│  │   API   │  │ Engine  │  │  UI    │  │
+│  └─────────┘  └─────────┘  └────────┘  │
+│              SQL Server DB              │
+└──────────────────┬──────────────────────┘
+                   │ HTTP
+        ┌──────────┴──────────┐
+        │                     │
+┌───────▼────────┐   ┌────────▼───────┐
+│  Client Agent  │   │  Client Agent  │
+│ .NET Worker    │   │ .NET Worker    │
+│ Service        │   │ Service        │
+│ port 5100      │   │ port 5100      │
+└────────────────┘   └────────────────┘
+```
+
+---
+
+## 🛠️ Tech Stack
 
 | Component | Technology |
 |---|---|
@@ -27,54 +53,54 @@ This system consists of two components:
 
 ---
 
-## Features
+## ✨ Features
 
-- Host Registration - Agents auto-register with master on startup
-- Health Monitoring - Real-time CPU, Memory, Disk usage tracking
-- Heartbeat System - Agents send heartbeat every 30 seconds
-- Offline Detection - Hosts marked offline if no heartbeat for 2 minutes
-- Deployment Engine - Trigger PowerShell script deployments remotely
-- MinIO Deployment - Automated MinIO object storage installation
-- API Key Authentication - Secure agent-to-master communication
-- Web UI Dashboard - Real-time host monitoring and deployment control
-- Deployment History - Full audit log of all deployments
+- ✅ **Host Registration** — Agents auto-register with master on startup
+- ✅ **Health Monitoring** — Real-time CPU, Memory, Disk usage tracking
+- ✅ **Heartbeat System** — Agents send heartbeat every 30 seconds
+- ✅ **Offline Detection** — Hosts marked offline if no heartbeat for 2 minutes
+- ✅ **Deployment Engine** — Trigger PowerShell script deployments remotely
+- ✅ **MinIO Deployment** — Automated MinIO object storage installation
+- ✅ **API Key Authentication** — Secure agent-to-master communication
+- ✅ **Web UI Dashboard** — Real-time host monitoring and deployment control
+- ✅ **Deployment History** — Full audit log of all deployments
 
 ---
 
-## Project Structure
+## 📁 Project Structure
 ```
 MasterControllerSystem/
-├── Master.API/
+├── Master.API/                 # Central controller API
 │   ├── Controllers/
-│   │   ├── HostController.cs
-│   │   └── DeploymentController.cs
+│   │   ├── HostController.cs       # Host registration & monitoring
+│   │   └── DeploymentController.cs # Deployment engine
 │   ├── Models/
-│   │   ├── HostEntity.cs
-│   │   └── Deployment.cs
+│   │   ├── HostEntity.cs           # Host database model
+│   │   └── Deployment.cs           # Deployment database model
 │   ├── DTOs/
-│   │   └── HostDtos.cs
+│   │   └── HostDtos.cs             # Data transfer objects
 │   ├── Services/
-│   │   └── HostMonitorService.cs
+│   │   └── HostMonitorService.cs   # Background health monitor
 │   ├── Data/
-│   │   └── AppDbContext.cs
+│   │   └── AppDbContext.cs         # Entity Framework context
 │   ├── Middleware/
-│   │   └── ApiKeyMiddleware.cs
+│   │   └── ApiKeyMiddleware.cs     # API key authentication
 │   └── wwwroot/
-│       └── index.html
-├── Client.Agent/
+│       └── index.html              # Web UI dashboard
+├── Client.Agent/               # Host agent worker service
 │   ├── Controllers/
-│   │   └── AgentController.cs
-│   ├── Worker.cs
+│   │   └── AgentController.cs      # Receives deploy commands
+│   ├── Worker.cs                   # Background heartbeat worker
 │   └── scripts/
-│       └── install-minio.ps1
+│       └── install-minio.ps1       # MinIO deployment script
 ├── scripts/
-│   └── install-minio.ps1
+│   └── install-minio.ps1           # MinIO installation script
 └── README.md
 ```
 
 ---
 
-## Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
 
@@ -90,7 +116,7 @@ cd master-controller
 
 ### 2. Configure Database
 
-Update connection string in Master.API/appsettings.json:
+Update connection string in `Master.API/appsettings.json`:
 ```json
 {
   "ConnectionStrings": {
@@ -105,7 +131,7 @@ cd Master.API
 dotnet run
 ```
 
-Master API runs at: http://localhost:5000
+Master API runs at: `http://localhost:5000`
 
 ### 4. Run Client Agent
 ```bash
@@ -113,7 +139,7 @@ cd Client.Agent
 dotnet run
 ```
 
-Client Agent runs at: http://localhost:5100
+Client Agent runs at: `http://localhost:5100`
 
 ### 5. Open Dashboard
 
@@ -122,11 +148,11 @@ Open browser and go to:
 http://localhost:5000
 ```
 
-Enter your API key and click Connect.
+Enter your API key and click **Connect**!
 
 ---
 
-## API Endpoints
+## 📡 API Endpoints
 
 ### Host Endpoints
 
@@ -149,9 +175,9 @@ Enter your API key and click Connect.
 
 ---
 
-## Authentication
+## 🔐 Authentication
 
-All endpoints except /api/hosts/register require an API key header:
+All endpoints except `/api/hosts/register` require an API key header:
 ```
 X-API-Key: your-api-key-here
 ```
@@ -160,21 +186,21 @@ API keys are automatically generated when a host registers.
 
 ---
 
-## Web UI Dashboard
+## 🖥️ Web UI Dashboard
 
-Access the dashboard at http://localhost:5000
+Access the dashboard at `http://localhost:5000`
 
 Features:
-- Live host statistics
-- Host list with CPU, Memory, Disk metrics
-- Online/Offline status indicators
-- One-click deployment trigger
-- Deployment history log
+- 📊 Live host statistics
+- 🖥️ Host list with CPU/Memory/Disk metrics
+- 🟢 Online/Offline status indicators
+- 🚀 One-click deployment trigger
+- 📋 Deployment history log
 
 ---
 
-## Deployment Flow
-
+## 🚀 Deployment Flow
+```
 1. Click Deploy on dashboard
 2. Master API receives request
 3. Master finds host IP address
@@ -182,23 +208,24 @@ Features:
 5. Agent runs PowerShell script
 6. Script installs application
 7. Agent reports result back to Master
-8. Dashboard updates with Success or Failed
+8. Dashboard updates with Success/Failed
+```
 
 ---
 
-## MinIO Deployment
+## 📦 MinIO Deployment
 
 MinIO is used as a sample deployment target to demonstrate the deployment engine.
 
 After successful deployment:
-- Server URL: http://localhost:9000
-- Console URL: http://localhost:9001
-- Username: minioadmin
-- Password: minioadmin123
+- **Server URL:** http://localhost:9000
+- **Console URL:** http://localhost:9001
+- **Username:** minioadmin
+- **Password:** minioadmin123
 
 ---
 
-## Author
+## 👩‍💻 Author
 
 Natasha Tisya
-GitHub: https://github.com/natashatisya
+GitHub: [@natashatisya](https://github.com/natashatisya)
