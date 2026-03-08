@@ -137,3 +137,4 @@ C:\Users\Natasha Tisya\Documents\MasterControllerSystem\Master.API\bin\Debug\net
 C:\Users\Natasha Tisya\Documents\MasterControllerSystem\Master.API\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Security.Cryptography.ProtectedData.dll
 C:\Users\Natasha Tisya\Documents\MasterControllerSystem\Master.API\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
 C:\Users\Natasha Tisya\Documents\MasterControllerSystem\Master.API\obj\Debug\net8.0\Master.API.sourcelink.json
+C:\Users\Natasha Tisya\Documents\MasterControllerSystem\Master.API\bin\Debug\net8.0\Master.API.staticwebassets.runtime.json

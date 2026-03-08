@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Controller Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; }
+        .header { background: #1e293b; padding: 20px 30px; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { color: #38bdf8; font-size: 24px; }
+        .header span { color: #64748b; font-size: 14px; }
+        .container { padding: 30px; max-width: 1200px; margin: 0 auto; }
+        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: #1e293b; border-radius: 12px; padding: 20px; border: 1px solid #334155; }
+        .stat-card h3 { color: #64748b; font-size: 13px; margin-bottom: 10px; text-transform: uppercase; }
+        .stat-card .number { font-size: 36px; font-weight: bold; }
+        .stat-card.total .number { color: #38bdf8; }
+        .stat-card.online .number { color: #22c55e; }
+        .stat-card.offline .number { color: #ef4444; }
+        .section { background: #1e293b; border-radius: 12px; padding: 20px; margin-bottom: 30px; border: 1px solid #334155; }
+        .section h2 { color: #38bdf8; margin-bottom: 20px; font-size: 18px; }
+        .host-card { background: #0f172a; border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .host-info h3 { color: #e2e8f0; font-size: 16px; margin-bottom: 5px; }
+        .host-info p { color: #64748b; font-size: 13px; }
+        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .status-online { background: #166534; color: #22c55e; }
+        .status-offline { background: #7f1d1d; color: #ef4444; }
+        .metrics { display: flex; gap: 15px; flex-wrap: wrap; }
+        .metric { text-align: center; }
+        .metric label { display: block; color: #64748b; font-size: 11px; margin-bottom: 4px; }
+        .metric span { color: #e2e8f0; font-size: 14px; font-weight: bold; }
+        .deploy-btn { background: #0ea5e9; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+        .deploy-btn:hover { background: #0284c7; }
+        .deploy-btn:disabled { background: #334155; cursor: not-allowed; }
+        .deployment-card { background: #0f172a; border-radius: 8px; padding: 15px; margin-bottom: 10px; border: 1px solid #334155; }
+        .deployment-card h4 { color: #e2e8f0; margin-bottom: 5px; }
+        .deployment-card p { color: #64748b; font-size: 13px; }
+        .status-success { color: #22c55e; }
+        .status-failed { color: #ef4444; }
+        .status-pending { color: #f59e0b; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; }
+        .modal.show { display: flex; }
+        .modal-content { background: #1e293b; border-radius: 12px; padding: 30px; width: 400px; border: 1px solid #334155; }
+        .modal-content h3 { color: #38bdf8; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; color: #64748b; font-size: 13px; margin-bottom: 5px; }
+        .form-group input { width: 100%; background: #0f172a; border: 1px solid #334155; color: #e2e8f0; padding: 10px; border-radius: 6px; font-size: 14px; }
+        .modal-buttons { display: flex; gap: 10px; margin-top: 20px; }
+        .btn-primary { background: #0ea5e9; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; flex: 1; }
+        .btn-cancel { background: #334155; color: #e2e8f0; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; flex: 1; }
+        .api-key-input { background: #0f172a; border: 1px solid #334155; color: #e2e8f0; padding: 10px; border-radius: 6px; font-size: 14px; width: 100%; margin-bottom: 20px; }
+        .api-key-section { background: #1e293b; border-radius: 12px; padding: 20px; margin-bottom: 30px; border: 1px solid #f59e0b; }
+        .api-key-section h2 { color: #f59e0b; margin-bottom: 10px; }
+        .refresh-btn { background: #334155; color: #e2e8f0; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; margin-left: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>🎛️ Master Controller Dashboard</h1>
+    <span id="lastUpdated">Last updated: --</span>
+</div>
+
+<div class="container">
+
+    <div class="api-key-section">
+        <h2>⚠️ Enter API Key</h2>
+        <p style="color:#64748b; font-size:13px; margin-bottom:10px;">Enter your agent API key to view dashboard</p>
+        <input type="text" class="api-key-input" id="apiKeyInput" placeholder="Paste your API key here..." />
+        <button class="btn-primary" onclick="loadDashboard()">Connect</button>
+    </div>
+
+    <div class="stats">
+        <div class="stat-card total">
+            <h3>Total Hosts</h3>
+            <div class="number" id="totalHosts">--</div>
+        </div>
+        <div class="stat-card online">
+            <h3>Online</h3>
+            <div class="number" id="onlineHosts">--</div>
+        </div>
+        <div class="stat-card offline">
+            <h3>Offline</h3>
+            <div class="number" id="offlineHosts">--</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>🖥️ Registered Hosts <button class="refresh-btn" onclick="loadHosts()">🔄 Refresh</button></h2>
+        <div id="hostsList">Loading...</div>
+    </div>
+
+    <div class="section">
+        <h2>🚀 Deployment History <button class="refresh-btn" onclick="loadDeployments()">🔄 Refresh</button></h2>
+        <div id="deploymentsList">Loading...</div>
+    </div>
+
+</div>
+
+<div class="modal" id="deployModal">
+    <div class="modal-content">
+        <h3>🚀 Deploy Application</h3>
+        <div class="form-group">
+            <label>App Name</label>
+            <input type="text" id="appName" value="MinIO" />
+        </div>
+        <div class="form-group">
+            <label>Script Name</label>
+            <input type="text" id="scriptName" value="install-minio.ps1" />
+        </div>
+        <div class="modal-buttons">
+            <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+            <button class="btn-primary" onclick="triggerDeploy()">Deploy</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_BASE = 'http://localhost:5000';
+    let selectedHostId = '';
+    let apiKey = '';
+
+    function getHeaders() {
+        return {
+            'Content-Type': 'application/json',
+            'X-API-Key': apiKey
+        };
+    }
+
+    async function loadDashboard() {
+        apiKey = document.getElementById('apiKeyInput').value.trim();
+        if (!apiKey) { alert('Please enter API key!'); return; }
+        await loadStatus();
+        await loadHosts();
+        await loadDeployments();
+        document.getElementById('lastUpdated').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+    }
+
+    async function loadStatus() {
+        try {
+            const res = await fetch(`${API_BASE}/api/hosts/status`, { headers: getHeaders() });
+            const data = await res.json();
+            document.getElementById('totalHosts').textContent = data.totalHosts;
+            document.getElementById('onlineHosts').textContent = data.onlineHosts;
+            document.getElementById('offlineHosts').textContent = data.offlineHosts;
+        } catch (e) { console.error(e); }
+    }
+
+    async function loadHosts() {
+        try {
+            const res = await fetch(`${API_BASE}/api/hosts`, { headers: getHeaders() });
+            const hosts = await res.json();
+            const container = document.getElementById('hostsList');
+            if (hosts.length === 0) {
+                container.innerHTML = '<p style="color:#64748b">No hosts registered yet.</p>';
+                return;
+            }
+            container.innerHTML = hosts.map(host => `
+                <div class="host-card">
+                    <div class="host-info">
+                        <h3>🖥️ ${host.hostname}</h3>
+                        <p>${host.ipAddress} • ${host.operatingSystem}</p>
+                        <p>Last heartbeat: ${new Date(host.lastHeartbeat).toLocaleString()}</p>
+                    </div>
+                    <div class="metrics">
+                        <div class="metric">
+                            <label>CPU</label>
+                            <span>${host.cpuUsage}%</span>
+                        </div>
+                        <div class="metric">
+                            <label>Memory</label>
+                            <span>${host.memoryUsage}%</span>
+                        </div>
+                        <div class="metric">
+                            <label>Disk</label>
+                            <span>${host.diskUsage}%</span>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="status-badge ${host.status === 'Online' ? 'status-online' : 'status-offline'}">${host.status}</span>
+                    </div>
+                    <button class="deploy-btn"
+                        ${host.status !== 'Online' ? 'disabled' : ''}
+                        onclick="openDeployModal('${host.id}')">
+                        🚀 Deploy
+                    </button>
+                </div>
+            `).join('');
+        } catch (e) {
+            document.getElementById('hostsList').innerHTML = '<p style="color:#ef4444">Error loading hosts. Check API key!</p>';
+        }
+    }
+
+    async function loadDeployments() {
+        try {
+            const res = await fetch(`${API_BASE}/api/deployments`, { headers: getHeaders() });
+            const deployments = await res.json();
+            const container = document.getElementById('deploymentsList');
+            if (deployments.length === 0) {
+                container.innerHTML = '<p style="color:#64748b">No deployments yet.</p>';
+                return;
+            }
+            container.innerHTML = deployments.map(d => `
+                <div class="deployment-card">
+                    <h4>${d.appName} → ${d.hostName}
+                        <span class="status-${d.status.toLowerCase()}">[${d.status}]</span>
+                    </h4>
+                    <p>Script: ${d.scriptName} • Started: ${new Date(d.startedAt).toLocaleString()}</p>
+                    ${d.completedAt ? `<p>Completed: ${new Date(d.completedAt).toLocaleString()}</p>` : ''}
+                </div>
+            `).join('');
+        } catch (e) { console.error(e); }
+    }
+
+    function openDeployModal(hostId) {
+        selectedHostId = hostId;
+        document.getElementById('deployModal').classList.add('show');
+    }
+
+    function closeModal() {
+        document.getElementById('deployModal').classList.remove('show');
+    }
+
+    async function triggerDeploy() {
+        const appName = document.getElementById('appName').value;
+        const scriptName = document.getElementById('scriptName').value;
+        try {
+            const res = await fetch(`${API_BASE}/api/deployments/${selectedHostId}/deploy`, {
+                method: 'POST',
+                headers: getHeaders(),
+                body: JSON.stringify({ appName, scriptName })
+            });
+            const data = await res.json();
+            alert(`Deployment started! ID: ${data.deploymentId}`);
+            closeModal();
+            setTimeout(loadDeployments, 2000);
+        } catch (e) {
+            alert('Deployment failed! Check console.');
+        }
+    }
+
+    setInterval(loadDashboard, 30000);
+</script>
+
+</body>
+</html>

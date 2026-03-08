@@ -1,11 +1,39 @@
 {
   "Version": 1,
-  "Hash": "nqY0lnIXXdSapaU/5flb+r5R0rRO2LUrnwJdt+DSiBY=",
+  "Hash": "4txMuEc+/fcIbeBP9RHa7xLr4m9dRKOzAUufpSEXFRk=",
   "Source": "Master.API",
   "BasePath": "_content/Master.API",
   "Mode": "Default",
   "ManifestType": "Build",
   "ReferencedProjectsConfiguration": [],
-  "DiscoveryPatterns": [],
-  "Assets": []
+  "DiscoveryPatterns": [
+    {
+      "Name": "Master.API\\wwwroot",
+      "Source": "Master.API",
+      "ContentRoot": "C:\\Users\\Natasha Tisya\\Documents\\MasterControllerSystem\\Master.API\\wwwroot\\",
+      "BasePath": "_content/Master.API",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "C:\\Users\\Natasha Tisya\\Documents\\MasterControllerSystem\\Master.API\\wwwroot\\index.html",
+      "SourceId": "Master.API",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Natasha Tisya\\Documents\\MasterControllerSystem\\Master.API\\wwwroot\\",
+      "BasePath": "_content/Master.API",
+      "RelativePath": "index.html",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\index.html"
+    }
+  ]
 }
