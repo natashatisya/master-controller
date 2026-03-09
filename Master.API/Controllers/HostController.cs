@@ -72,7 +72,7 @@ public class HostController : ControllerBase
             if (existing != null)
             {
                 existing.Status = "Online";
-                existing.LastHeartbeat = DateTime.UtcNow;
+                existing.LastHeartbeat = DateTime.Now;
                 await _db.SaveChangesAsync();
 
                 return Ok(new RegisterHostResponseDto
@@ -91,8 +91,8 @@ public class HostController : ControllerBase
                 Capabilities = dto.Capabilities,
                 Status = "Online",
                 ApiKey = Guid.NewGuid().ToString("N"),
-                RegisteredAt = DateTime.UtcNow,
-                LastHeartbeat = DateTime.UtcNow
+                RegisteredAt = DateTime.Now,
+                LastHeartbeat = DateTime.Now
             };
 
             _db.Hosts.Add(host);
@@ -121,7 +121,7 @@ public class HostController : ControllerBase
         if (host == null)
             return NotFound(new { message = "Host not found." });
 
-        host.LastHeartbeat = DateTime.UtcNow;
+        host.LastHeartbeat = DateTime.Now;
         host.Status = "Online";
         host.CpuUsage = dto.CpuUsage;
         host.MemoryUsage = dto.MemoryUsage;

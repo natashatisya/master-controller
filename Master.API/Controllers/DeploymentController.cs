@@ -15,12 +15,14 @@ public class DeploymentController : ControllerBase
     private readonly AppDbContext _db;
     private readonly ILogger<DeploymentController> _logger;
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IServiceScopeFactory _scopeFactory;
 
-    public DeploymentController(AppDbContext db, ILogger<DeploymentController> logger, IHttpClientFactory httpClientFactory)
+    public DeploymentController(AppDbContext db, ILogger<DeploymentController> logger, IHttpClientFactory httpClientFactory, IServiceScopeFactory scopeFactory)
     {
         _db = db;
         _logger = logger;
         _httpClientFactory = httpClientFactory;
+        _scopeFactory = scopeFactory;
     }
 
     [HttpGet]
@@ -61,25 +63,24 @@ public class DeploymentController : ControllerBase
             AppName = dto.AppName,
             ScriptName = dto.ScriptName,
             Status = "Pending",
-            StartedAt = DateTime.UtcNow
+            StartedAt = DateTime.Now
         };
 
         _db.Deployments.Add(deployment);
         await _db.SaveChangesAsync();
 
-        // Fix: capture everything needed before background task
         var deploymentId = deployment.Id;
         var scriptName = dto.ScriptName;
         var appName = dto.AppName;
         var hostIp = host.IpAddress;
-        var hostName = host.Hostname;
-        var services = HttpContext.RequestServices;
+        var scopeFactory = _scopeFactory;
+        var logger = _logger;
 
         _ = Task.Run(async () =>
         {
             try
             {
-                using var scope = services.CreateScope();
+                using var scope = scopeFactory.CreateScope();
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
                 var httpClientFactory = scope.ServiceProvider.GetRequiredService<IHttpClientFactory>();
                 var client = httpClientFactory.CreateClient();
@@ -95,21 +96,36 @@ public class DeploymentController : ControllerBase
                 var content = new StringContent(payload, Encoding.UTF8, "application/json");
                 var agentUrl = $"http://{hostIp}:5100/api/agent/execute";
 
+                logger.LogInformation("Sending deploy command to agent at {Url}", agentUrl);
+
                 var response = await client.PostAsync(agentUrl, content);
                 var result = await response.Content.ReadAsStringAsync();
+
+                logger.LogInformation("Agent response: {Status}", response.StatusCode);
 
                 var dep = await db.Deployments.FindAsync(deploymentId);
                 if (dep != null)
                 {
                     dep.Status = response.IsSuccessStatusCode ? "Success" : "Failed";
                     dep.Logs = result;
-                    dep.CompletedAt = DateTime.UtcNow;
+                    dep.CompletedAt = DateTime.Now;
                     await db.SaveChangesAsync();
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error sending deploy command to agent.");
+                logger.LogError(ex, "Error sending deploy command to agent.");
+
+                using var scope = scopeFactory.CreateScope();
+                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                var dep = await db.Deployments.FindAsync(deploymentId);
+                if (dep != null)
+                {
+                    dep.Status = "Failed";
+                    dep.Logs = ex.Message;
+                    dep.CompletedAt = DateTime.Now;
+                    await db.SaveChangesAsync();
+                }
             }
         });
 
