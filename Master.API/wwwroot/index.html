@@ -4,96 +4,153 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Master Controller Dashboard</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎛️</text></svg>" />
+    <link rel="shortcut icon" href="data:," />
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; }
-        .header { background: #1e293b; padding: 20px 30px; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; }
-        .header h1 { color: #38bdf8; font-size: 24px; }
-        .header span { color: #64748b; font-size: 14px; }
-        .container { padding: 30px; max-width: 1200px; margin: 0 auto; }
-        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
-        .stat-card { background: #1e293b; border-radius: 12px; padding: 20px; border: 1px solid #334155; }
-        .stat-card h3 { color: #64748b; font-size: 13px; margin-bottom: 10px; text-transform: uppercase; }
-        .stat-card .number { font-size: 36px; font-weight: bold; }
+        body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
+
+        /* HEADER */
+        .header { background: #1e293b; padding: 16px 40px; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .header-dot { width: 10px; height: 10px; background: #38bdf8; border-radius: 50%; box-shadow: 0 0 8px #38bdf8; }
+        .header h1 { color: #ffffff; font-size: 18px; font-weight: 600; letter-spacing: 0.5px; }
+        .header-time { color: #6a7c96; font-size: 13px; }
+
+        /* CONTAINER */
+        .container { padding: 32px 40px; max-width: 1300px; margin: 0 auto; }
+
+        /* API KEY SECTION */
+        .api-key-section { background: #1e293b; border-radius: 10px; padding: 24px; margin-bottom: 28px; border: 1px solid #0ea5e9; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+        .api-key-section .label { color: #38bdf8; font-size: 13px; font-weight: 600; white-space: nowrap; }
+        .api-key-input { flex: 1; min-width: 200px; background: #0f172a; border: 1px solid #334155; color: #e2e8f0; padding: 10px 14px; border-radius: 6px; font-size: 13px; outline: none; }
+        .api-key-input:focus { border-color: #0ea5e9; }
+        .btn-connect { background: #0ea5e9; color: #ffffff; border: none; padding: 10px 24px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; white-space: nowrap; }
+        .btn-connect:hover { background: #38bdf8; }
+
+        /* STATS */
+        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 28px; }
+        .stat-card { background: #1e293b; border-radius: 10px; padding: 20px 24px; border: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; }
+        .stat-card .stat-info h3 { color: #8699b4; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .stat-card .number { font-size: 32px; font-weight: 700; }
         .stat-card.total .number { color: #38bdf8; }
         .stat-card.online .number { color: #22c55e; }
         .stat-card.offline .number { color: #ef4444; }
-        .section { background: #1e293b; border-radius: 12px; padding: 20px; margin-bottom: 30px; border: 1px solid #334155; }
-        .section h2 { color: #38bdf8; margin-bottom: 20px; font-size: 18px; }
-        .host-card { background: #0f172a; border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-        .host-info h3 { color: #e2e8f0; font-size: 16px; margin-bottom: 5px; }
-        .host-info p { color: #64748b; font-size: 13px; }
-        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
-        .status-online { background: #166534; color: #22c55e; }
-        .status-offline { background: #7f1d1d; color: #ef4444; }
-        .metrics { display: flex; gap: 15px; flex-wrap: wrap; }
+        .stat-icon { font-size: 28px; opacity: 0.4; }
+
+        /* SECTION */
+        .section { background: #1e293b; border-radius: 10px; padding: 24px; margin-bottom: 24px; border: 1px solid #334155; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #334155; }
+        .section-header h2 { color: #ffffff; font-size: 15px; font-weight: 600; }
+        .refresh-btn { background: transparent; color: #6a7c96; border: 1px solid #334155; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+        .refresh-btn:hover { background: #334155; color: #38bdf8; }
+
+        /* HOST CARD */
+        .host-card { background: #0f172a; border-radius: 8px; padding: 16px 20px; margin-bottom: 12px; border: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; transition: border-color 0.2s; }
+        .host-card:hover { border-color: #0ea5e9; }
+        .host-card:last-child { margin-bottom: 0; }
+        .host-info h3 { color: #e2e8f0; font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+        .host-info p { color: #6a7c96; font-size: 12px; line-height: 1.6; }
+
+        /* METRICS */
+        .metrics { display: flex; gap: 24px; }
         .metric { text-align: center; }
-        .metric label { display: block; color: #64748b; font-size: 11px; margin-bottom: 4px; }
-        .metric span { color: #e2e8f0; font-size: 14px; font-weight: bold; }
-        .deploy-btn { background: #0ea5e9; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; }
-        .deploy-btn:hover { background: #0284c7; }
-        .deploy-btn:disabled { background: #334155; cursor: not-allowed; }
-        .deployment-card { background: #0f172a; border-radius: 8px; padding: 15px; margin-bottom: 10px; border: 1px solid #334155; }
-        .deployment-card h4 { color: #e2e8f0; margin-bottom: 5px; }
-        .deployment-card p { color: #64748b; font-size: 13px; }
-        .status-success { color: #22c55e; }
-        .status-failed { color: #ef4444; }
-        .status-pending { color: #f59e0b; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; }
+        .metric label { display: block; color: #6a7c96; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .metric span { color: #e2e8f0; font-size: 15px; font-weight: 700; }
+
+        /* STATUS + DEPLOY */
+        .host-actions { display: flex; align-items: center; gap: 10px; }
+        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; }
+        .status-online { background: #12572c; color: #3aff82; border: 1px solid #16a34a; }
+        .status-offline { background: #681616; color: #ff7575; border: 1px solid #b91c1c; }
+        .deploy-btn { background: #1e3a4a; color: #38bdf8; border: 1px solid #0ea5e9; padding: 7px 16px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; }
+        .deploy-btn:hover { background: #0ea5e9; color: #ffffff; }
+        .deploy-btn:disabled { background: #1e293b; color: #334155; border-color: #334155; cursor: not-allowed; }
+
+        /* DEPLOYMENT CARD */
+        .deployment-card { background: #0f172a; border-radius: 8px; padding: 14px 20px; margin-bottom: 10px; border: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+        .deployment-card:last-child { margin-bottom: 0; }
+        .deployment-info h4 { color: #e2e8f0; font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+        .deployment-info p { color: #6a7c96; font-size: 12px; }
+        .status-pill { padding: 3px 0; border-radius: 20px; font-size: 11px; font-weight: 700; width: 70px; text-align: center; display: inline-block; }
+        .status-success { background: #12572c; color: #3aff82; border: 1px solid #16a34a; }
+        .status-failed { background: #681616; color: #ff7575; border: 1px solid #b91c1c; }
+        .status-pending { background: #1c1917; color: #f59e0b; border: 1px solid #d97706; }
+
+        /* MODAL */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; }
         .modal.show { display: flex; }
-        .modal-content { background: #1e293b; border-radius: 12px; padding: 30px; width: 400px; border: 1px solid #334155; }
-        .modal-content h3 { color: #38bdf8; margin-bottom: 20px; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; color: #64748b; font-size: 13px; margin-bottom: 5px; }
-        .form-group input { width: 100%; background: #0f172a; border: 1px solid #334155; color: #e2e8f0; padding: 10px; border-radius: 6px; font-size: 14px; }
-        .modal-buttons { display: flex; gap: 10px; margin-top: 20px; }
-        .btn-primary { background: #0ea5e9; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; flex: 1; }
-        .btn-cancel { background: #334155; color: #e2e8f0; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; flex: 1; }
-        .api-key-input { background: #0f172a; border: 1px solid #334155; color: #e2e8f0; padding: 10px; border-radius: 6px; font-size: 14px; width: 100%; margin-bottom: 20px; }
-        .api-key-section { background: #1e293b; border-radius: 12px; padding: 20px; margin-bottom: 30px; border: 1px solid #f59e0b; }
-        .api-key-section h2 { color: #f59e0b; margin-bottom: 10px; }
-        .refresh-btn { background: #334155; color: #e2e8f0; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; margin-left: 10px; }
+        .modal-content { background: #1e293b; border-radius: 12px; padding: 32px; width: 420px; border: 1px solid #0ea5e9; }
+        .modal-content h3 { color: #ffffff; font-size: 16px; font-weight: 600; margin-bottom: 24px; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; color: #6a7c96; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+        .form-group input { width: 100%; background: #0f172a; border: 1px solid #334155; color: #e2e8f0; padding: 10px 14px; border-radius: 6px; font-size: 13px; outline: none; }
+        .form-group input:focus { border-color: #0ea5e9; }
+        .modal-buttons { display: flex; gap: 10px; margin-top: 24px; }
+        .btn-primary { background: #0ea5e9; color: #ffffff; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; flex: 1; font-size: 13px; font-weight: 600; }
+        .btn-primary:hover { background: #38bdf8; }
+        .btn-cancel { background: #334155; color: #6a7c96; border: 1px solid #334155; padding: 10px 20px; border-radius: 6px; cursor: pointer; flex: 1; font-size: 13px; }
+        .btn-cancel:hover { color: #e2e8f0; }
+
+        .empty-state { color: #6a7c96; font-size: 13px; text-align: center; padding: 24px 0; }
+        .error-state { color: #ef4444; font-size: 13px; text-align: center; padding: 24px 0; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <h1>🎛️ Master Controller Dashboard</h1>
-    <span id="lastUpdated">Last updated: --</span>
+    <div class="header-left">
+        <div class="header-dot"></div>
+        <h1>Master Controller</h1>
+    </div>
+    <div class="header-right">
+        <span class="header-time" id="lastUpdated">Not connected</span>
+    </div>
 </div>
 
 <div class="container">
 
     <div class="api-key-section">
-        <h2>Enter API Key</h2>
-        <p style="color:#64748b; font-size:13px; margin-bottom:10px;">Enter your agent API key to view dashboard</p>
+        <span class="label">API Key</span>
         <input type="text" class="api-key-input" id="apiKeyInput" placeholder="Paste your API key here..." />
-        <button class="btn-primary" onclick="loadDashboard()">Connect</button>
+        <button class="btn-connect" onclick="loadDashboard()">Connect</button>
     </div>
 
     <div class="stats">
         <div class="stat-card total">
-            <h3>Total Hosts</h3>
-            <div class="number" id="totalHosts">--</div>
+            <div class="stat-info">
+                <h3>Total Hosts</h3>
+                <div class="number" id="totalHosts">--</div>
+            </div>
         </div>
         <div class="stat-card online">
-            <h3>Online</h3>
-            <div class="number" id="onlineHosts">--</div>
+            <div class="stat-info">
+                <h3>Online</h3>
+                <div class="number" id="onlineHosts">--</div>
+            </div>
         </div>
         <div class="stat-card offline">
-            <h3>Offline</h3>
-            <div class="number" id="offlineHosts">--</div>
+            <div class="stat-info">
+                <h3>Offline</h3>
+                <div class="number" id="offlineHosts">--</div>
+            </div>
         </div>
     </div>
 
     <div class="section">
-        <h2>Registered Hosts <button class="refresh-btn" onclick="loadHosts()">🔄 Refresh</button></h2>
-        <div id="hostsList">Loading...</div>
+        <div class="section-header">
+            <h2>Registered Hosts</h2>
+            <button class="refresh-btn" onclick="loadHosts()">Refresh</button>
+        </div>
+        <div id="hostsList"><p class="empty-state">Enter API key to load hosts.</p></div>
     </div>
 
     <div class="section">
-        <h2>Deployment History <button class="refresh-btn" onclick="loadDeployments()">🔄 Refresh</button></h2>
-        <div id="deploymentsList">Loading...</div>
+        <div class="section-header">
+            <h2>Deployment History</h2>
+            <button class="refresh-btn" onclick="loadDeployments()">Refresh</button>
+        </div>
+        <div id="deploymentsList"><p class="empty-state">Enter API key to load deployments.</p></div>
     </div>
 
 </div>
@@ -153,14 +210,14 @@
             const hosts = await res.json();
             const container = document.getElementById('hostsList');
             if (hosts.length === 0) {
-                container.innerHTML = '<p style="color:#64748b">No hosts registered yet.</p>';
+                container.innerHTML = '<p class="empty-state">No hosts registered yet.</p>';
                 return;
             }
             container.innerHTML = hosts.map(host => `
                 <div class="host-card">
                     <div class="host-info">
-                        <h3>🖥️ ${host.hostname}</h3>
-                        <p>${host.ipAddress} • ${host.operatingSystem}</p>
+                        <h3>${host.hostname}</h3>
+                        <p>${host.ipAddress} &nbsp;·&nbsp; ${host.operatingSystem}</p>
                         <p>Last heartbeat: ${new Date(host.lastHeartbeat).toLocaleString()}</p>
                     </div>
                     <div class="metrics">
@@ -177,7 +234,7 @@
                             <span>${host.diskUsage}%</span>
                         </div>
                     </div>
-                    <div style="display:flex; align-items:center; gap:10px;">
+                    <div class="host-actions">
                         <span class="status-badge ${host.status === 'Online' ? 'status-online' : 'status-offline'}">${host.status}</span>
                         <button class="deploy-btn"
                             ${host.status !== 'Online' ? 'disabled' : ''}
@@ -188,7 +245,7 @@
                 </div>
             `).join('');
         } catch (e) {
-            document.getElementById('hostsList').innerHTML = '<p style="color:#ef4444">Error loading hosts. Check API key!</p>';
+            document.getElementById('hostsList').innerHTML = '<p class="error-state">Error loading hosts. Check API key!</p>';
         }
     }
 
@@ -198,16 +255,17 @@
             const deployments = await res.json();
             const container = document.getElementById('deploymentsList');
             if (deployments.length === 0) {
-                container.innerHTML = '<p style="color:#64748b">No deployments yet.</p>';
+                container.innerHTML = '<p class="empty-state">No deployments yet.</p>';
                 return;
             }
             container.innerHTML = deployments.map(d => `
                 <div class="deployment-card">
-                    <h4>${d.appName} → ${d.hostName}
-                        <span class="status-${d.status.toLowerCase()}">[${d.status}]</span>
-                    </h4>
-                    <p>Script: ${d.scriptName} • Started: ${new Date(d.startedAt).toLocaleString()}</p>
-                    ${d.completedAt ? `<p>Completed: ${new Date(d.completedAt).toLocaleString()}</p>` : ''}
+                    <div class="deployment-info">
+                        <h4>${d.appName} → ${d.hostName}</h4>
+                        <p>Script: ${d.scriptName} &nbsp;·&nbsp; Started: ${new Date(d.startedAt).toLocaleString()}</p>
+                        ${d.completedAt ? `<p>Completed: ${new Date(d.completedAt).toLocaleString()}</p>` : ''}
+                    </div>
+                    <span class="status-pill status-${d.status.toLowerCase()}">${d.status}</span>
                 </div>
             `).join('');
         } catch (e) { console.error(e); }

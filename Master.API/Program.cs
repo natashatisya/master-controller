@@ -52,6 +52,7 @@ app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Net Orchestrator Master API v1");
     c.RoutePrefix = "swagger";
+    c.HeadContent = "<link rel='icon' href='data:,'>";
 });
 
 app.UseDefaultFiles();
