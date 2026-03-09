@@ -1,25 +1,32 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Natasha Tisya\\Documents\\MasterControllerSystem\\Master.API\\Master.API.csproj": {}
+    "C:\\Users\\Salini\\Documents\\master-controller\\Master.API\\Master.API.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Natasha Tisya\\Documents\\MasterControllerSystem\\Master.API\\Master.API.csproj": {
+    "C:\\Users\\Salini\\Documents\\master-controller\\Master.API\\Master.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Natasha Tisya\\Documents\\MasterControllerSystem\\Master.API\\Master.API.csproj",
+        "projectUniqueName": "C:\\Users\\Salini\\Documents\\master-controller\\Master.API\\Master.API.csproj",
         "projectName": "Master.API",
-        "projectPath": "C:\\Users\\Natasha Tisya\\Documents\\MasterControllerSystem\\Master.API\\Master.API.csproj",
-        "packagesPath": "C:\\Users\\Natasha Tisya\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Natasha Tisya\\Documents\\MasterControllerSystem\\Master.API\\obj\\",
+        "projectPath": "C:\\Users\\Salini\\Documents\\master-controller\\Master.API\\Master.API.csproj",
+        "packagesPath": "C:\\Users\\Salini\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Salini\\Documents\\master-controller\\Master.API\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\Natasha Tisya\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\Salini\\Documents\\master-controller\\NuGet.Config",
+          "C:\\Users\\Salini\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -89,7 +96,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.418/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.400/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

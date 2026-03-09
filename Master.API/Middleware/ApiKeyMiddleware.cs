@@ -16,7 +16,12 @@ public class ApiKeyMiddleware
     {
         // Skip auth for registration and swagger
         var path = context.Request.Path.Value ?? "";
-        if (path.Contains("/swagger") || path.Contains("/api/hosts/register"))
+        if (path.Contains("/swagger") || 
+            path.Contains("/api/hosts/register") || 
+            path == "/" || 
+            path.Contains(".html") || 
+            path.Contains(".css") || 
+            path.Contains(".js"))
         {
             await _next(context);
             return;
