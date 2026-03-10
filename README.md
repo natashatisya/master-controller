@@ -22,18 +22,28 @@ This system consists of two components:
 │                                         │
 │  ┌─────────┐  ┌─────────┐  ┌────────┐   │
 │  │  Hosts  │  │ Deploy  │  │  Web   │   │
-│  │   API   │  │ Engine  │  │  UI    │   │
+│  │   API   │  │ Engine  │  │   UI   │   │
 │  └─────────┘  └─────────┘  └────────┘   │
-│              SQL Server DB              │
+│                                         │
+│  ┌─────────────────────────────────┐    │
+│  │     SQL Server Database         │    │
+│  │   Hosts + Deployments Tables    │    │
+│  └─────────────────────────────────┘    │
 └──────────────────┬──────────────────────┘
-                   │ HTTP
+                   │ HTTP POST
+                   │ /api/agent/execute
         ┌──────────┴──────────┐
         │                     │
 ┌───────▼────────┐   ┌────────▼───────┐
 │  Client Agent  │   │  Client Agent  │
 │ .NET Worker    │   │ .NET Worker    │
 │ Service        │   │ Service        │
-│ port 5100      │   │ port 5100      │
+│ :5100          │   │ :5100          │
+│                │   │                │
+│ ┌────────────┐ │   │ ┌────────────┐ │
+│ │ Heartbeat  │ │   │ │ Heartbeat  │ │
+│ │ every 30s  │ │   │ │ every 30s  │ │
+│ └────────────┘ │   │ └────────────┘ │
 └────────────────┘   └────────────────┘
 ```
 
@@ -56,7 +66,7 @@ This system consists of two components:
 - Host Registration - Agents auto-register with master on startup
 - Health Monitoring - Real-time CPU, Memory, Disk usage tracking
 - Heartbeat System - Agents send heartbeat every 30 seconds
-- Offline Detection - Hosts marked offline if no heartbeat for 2 minutes
+- Offline Detection - Hosts marked offline if no heartbeat for 1 minute
 - Deployment Engine - Trigger PowerShell script deployments remotely
 - MinIO Deployment - Automated MinIO object storage installation
 - API Key Authentication - Secure agent-to-master communication
