@@ -106,7 +106,7 @@ public class Worker : BackgroundService
                 $"{masterUrl}/api/hosts/{_hostId}/heartbeat", content, ct);
 
             if (response.IsSuccessStatusCode)
-                _logger.LogInformation("Heartbeat sent at {Time}", DateTime.UtcNow);
+                _logger.LogInformation("Heartbeat sent at {Time}", DateTime.Now);
             else
                 _logger.LogWarning("Heartbeat failed. Status: {Status}", response.StatusCode);
         }

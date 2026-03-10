@@ -97,7 +97,7 @@ public class AgentController : ControllerBase
         return Ok(new
         {
             status = "Online",
-            timestamp = DateTime.UtcNow,
+            timestamp = DateTime.Now,
             machine = System.Net.Dns.GetHostName()
         });
     }

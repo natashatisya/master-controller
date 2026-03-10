@@ -9,8 +9,8 @@ public class HostEntity
     public string Capabilities { get; set; } = string.Empty;
     public string Status { get; set; } = "Offline";
     public string ApiKey { get; set; } = string.Empty;
-    public DateTime RegisteredAt { get; set; } = DateTime.UtcNow;
-    public DateTime LastHeartbeat { get; set; } = DateTime.UtcNow;
+    public DateTime RegisteredAt { get; set; } = DateTime.Now;
+    public DateTime LastHeartbeat { get; set; } = DateTime.Now;
     public double CpuUsage { get; set; }
     public double MemoryUsage { get; set; }
     public double DiskUsage { get; set; }

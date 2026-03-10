@@ -9,6 +9,6 @@ public class Deployment
     public string ScriptName { get; set; } = string.Empty;
     public string Status { get; set; } = "Pending";
     public string Logs { get; set; } = string.Empty;
-    public DateTime StartedAt { get; set; } = DateTime.UtcNow;
+    public DateTime StartedAt { get; set; } = DateTime.Now;
     public DateTime? CompletedAt { get; set; }
 }

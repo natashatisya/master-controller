@@ -25,8 +25,8 @@ public class HostMonitorService : BackgroundService
                 using var scope = _serviceProvider.CreateScope();
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-                // Mark hosts offline if no heartbeat for 2 minutes
-                var cutoff = DateTime.UtcNow.AddMinutes(-2);
+                // Mark hosts offline if no heartbeat for 1 minute
+                var cutoff = DateTime.Now.AddMinutes(-1);
                 var offlineHosts = await db.Hosts
                     .Where(h => h.Status == "Online" && h.LastHeartbeat < cutoff)
                     .ToListAsync(stoppingToken);
@@ -45,8 +45,8 @@ public class HostMonitorService : BackgroundService
                 _logger.LogError(ex, "Error in Host Monitor Service.");
             }
 
-            // Check every 60 seconds
-            await Task.Delay(TimeSpan.FromSeconds(60), stoppingToken);
+            // Check every 30 seconds
+            await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
         }
     }
 }
