@@ -66,6 +66,8 @@
         .deploy-btn { background: #1e3a4a; color: #38bdf8; border: 1px solid #0ea5e9; padding: 7px 16px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; }
         .deploy-btn:hover { background: #0ea5e9; color: #ffffff; }
         .deploy-btn:disabled { background: #1e293b; color: #334155; border-color: #334155; cursor: not-allowed; }
+        .delete-btn { background: transparent; color: #ef4444; border: 1px solid #7f1d1d; padding: 7px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+        .delete-btn:hover { background: #7f1d1d; }
 
         /* DEPLOYMENT CARD */
         .deployment-card { background: #0f172a; border-radius: 8px; padding: 14px 20px; margin-bottom: 10px; border: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
@@ -241,6 +243,7 @@
                             onclick="openDeployModal('${host.id}')">
                             Deploy
                         </button>
+                        <button class="delete-btn" onclick="deleteHost('${host.id}')">🗑️</button>
                     </div>
                 </div>
             `).join('');
@@ -269,6 +272,25 @@
                 </div>
             `).join('');
         } catch (e) { console.error(e); }
+    }
+
+    async function deleteHost(hostId) {
+        if (!confirm('Are you sure you want to delete this host?')) return;
+        try {
+            const res = await fetch(`${API_BASE}/api/hosts/${hostId}`, {
+                method: 'DELETE',
+                headers: getHeaders()
+            });
+            if (res.ok) {
+                alert('Host deleted successfully!');
+                await loadHosts();
+                await loadStatus();
+            } else {
+                alert('Failed to delete host!');
+            }
+        } catch (e) {
+            alert('Error deleting host!');
+        }
     }
 
     function openDeployModal(hostId) {
